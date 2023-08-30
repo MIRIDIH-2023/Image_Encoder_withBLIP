@@ -50,7 +50,7 @@ def start(config):
 if __name__=="__main__":
     config = {
         'LOG_DIR' : 'logs',
-        'BATCH_SIZE' : 256,
+        'BATCH_SIZE' : 64,
         'EPOCH' : 5,
         'LR' : 0.001,
         'NUM_ATTENTION_BLOCK' : 4
