@@ -10,6 +10,12 @@ from torch.utils.tensorboard import SummaryWriter
 def start(config):
     keyword_embedding_list , text_embedding_list , caption_embedding_list , image_embedding_list = loading()
 
+    max_len = len(image_embedding_list)
+    keyword_embedding_list = keyword_embedding_list[:max_len]
+    text_embedding_list = text_embedding_list[:max_len]
+    caption_embedding_list = caption_embedding_list[:max_len]
+    
+
     log_dir = config["LOG_DIR"]  # 로그가 저장될 디렉토리 경로
     logger = SummaryWriter(log_dir)
     model = Image_Embedding_model_only_Attention_Block(num_blocks=config['NUM_ATTENTION_BLOCK'])
