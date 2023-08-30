@@ -5,15 +5,19 @@ import numpy as np
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 def save_vector(model, dataloder, config):
-    model.load_state_dict(torch.load('image_embedding_model.pth')).to(device)
+    model.load_state_dict(torch.load('image_embedding_model.pth'))
     model.eval()
+    model.to(device)
     print('saving vector...')
     image_latent_vector_list = []
     for _ , image_vector in tqdm(dataloder):
         image_vector = image_vector.to(device)  # 이미지 벡터도 디바이스로 이동
         latent_vector = model(image_vector) #[batch , 512]
         
-        image_latent_vector_list.extend(torch.Tensor(latent_vector.cpu().detach().numpy()))
+        image_latent_vector_list.extend(latent_vector.cpu().detach().numpy())
+    print(len(image_latent_vector_list))
+    for i in range(len(image_latent_vector_list)):
+        image_latent_vector_list[i] = torch.Tensor(image_latent_vector_list[i])
     torch.save(image_latent_vector_list, 'image_latent_vector_list.pth')
     print('done!')
     print("save image latent vector at image_latent_vector_list.pth")

@@ -52,7 +52,7 @@ def start(config):
 
     train_dataloader = DataLoader(train_dataset , batch_size=config['BATCH_SIZE'], shuffle=True)
     valid_dataloader = DataLoader(valid_dataset , batch_size=config['BATCH_SIZE'], shuffle=False)
-    test_dataloader = DataLoader(test_dataset, batch_size=1, shuffle=False)
+    test_dataloader = DataLoader(test_dataset, batch_size=config['BATCH_SIZE'], shuffle=False)
 
     train(model,train_dataloader,valid_dataloader,logger, config)
 
