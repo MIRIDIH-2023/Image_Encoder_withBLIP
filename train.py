@@ -34,9 +34,8 @@ def train(model, train_dataloader, valid_dataloader, logger, config):
             train_loss += loss.item()
 
             avg_loss = train_loss / (i + 1)
-            tqdm.set_postfix({"avg_loss": str(avg_loss)}, refresh=True)  # tqdm에 평균 손실값 업데이트
             
-            if(i%100==99):
+            if(i%40==39):
                 logger_step+=1
                 logger.add_scalar("Training batch Loss", avg_loss , logger_step)  #logging train loss every 100 step
         
@@ -57,7 +56,6 @@ def train(model, train_dataloader, valid_dataloader, logger, config):
                 valid_loss += loss.item()
 
                 avg_loss = valid_loss / (i + 1)
-                tqdm.set_postfix({"valid avg_loss": str(avg_loss)}, refresh=True)  # tqdm에 평균 손실값 업데이트
                 
             logger.add_scalar("Validation total Loss", avg_loss , epoch)  #logging train loss every 100 step
         ######################################## one epoch validation end ##################################################
