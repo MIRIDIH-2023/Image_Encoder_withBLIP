@@ -59,3 +59,5 @@ def train(model, train_dataloader, valid_dataloader, logger, config):
                 
             logger.add_scalar("Validation total Loss", avg_loss , epoch)  #logging train loss every 100 step
         ######################################## one epoch validation end ##################################################
+    
+    torch.save(model.state_dict(), 'image_embedding_model.pth')
