@@ -6,34 +6,35 @@ from torch import dropout, nn, einsum
 import torch.nn.functional as F
 
 from einops import rearrange, repeat
-from model.pos_encoding import build_position_encoding
-from model.attention import *
-    
+from pos_encoding import build_position_encoding
+from attention import *
+
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 class AggregationBlock(nn.Module):
     def __init__(
         self,
         *,
         depth,
-        input_channels = 3,
-        input_axis = 2,
-        num_latents = 512,
-        latent_dim = 512,
-        num_classes = 1000,
+        input_channels = 512, #3
+        input_axis = 1, #2
+        num_latents = 1,
+        latent_dim = 768,
+        num_classes = 768,
         attn_dropout = 0.,
         ff_dropout = 0.,
         weight_tie_layers = False,
         pos_enc_type = 'none',
         pre_norm = True,
         post_norm = True, 
-        activation = 'geglu',
+        activation = 'gelu',
         last_ln = False,
         ff_mult = 4,
         more_dropout = False,
-        xavier_init = False,
+        xavier_init = True,
         query_fixed = False,
-        query_xavier_init = False,
-        query_type = 'learned',
+        query_xavier_init = True,
+        query_type = 'slot',
         encoder_isab = False,
         first_order=False
     ):
@@ -120,7 +121,7 @@ class AggregationBlock(nn.Module):
         if self.query_type == 'learned':
             ret = repeat(self.latents, 'n d -> b n d', b = b)
         elif self.query_type == 'slot':
-            slots_init = torch.randn((b, self.num_latents, self.latent_dim)).cuda()
+            slots_init = torch.randn((b, self.num_latents, self.latent_dim)).to(device)
             ret = self.slots_mu + self.slots_log_sigma.exp() * slots_init
         return ret
 
@@ -143,3 +144,22 @@ class AggregationBlock(nn.Module):
             
         x = self.decoder_output_holder(x)
         return self.last_layer(x)
+    
+class simple_local_global_model(nn.Module):
+    def __init__(self , input_channels):
+        super().__init__()
+        self.input_channels = input_channels
+        self.aggregation_block = AggregationBlock(depth=4, input_channels=input_channels)
+        self.fc = nn.Linear(768 , 512)
+        self.residual_norm = nn.LayerNorm(768)
+        
+    def forward(self, local_feature, global_feature=None):
+        local_feature = local_feature.view( -1,1,self.input_channels )
+        block_output = self.aggregation_block(local_feature)
+        output = self.fc(block_output)
+        
+        return output
+        
+#model = simple_local_global_model(input_channels=512)
+#test = torch.randn((1,512))
+#print(model(test).shape)
