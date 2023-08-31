@@ -6,8 +6,8 @@ from torch import dropout, nn, einsum
 import torch.nn.functional as F
 
 from einops import rearrange, repeat
-from pos_encoding import build_position_encoding
-from attention import *
+from model.pos_encoding import build_position_encoding
+from model.attention import *
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
